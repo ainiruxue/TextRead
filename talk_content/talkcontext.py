@@ -25,10 +25,10 @@ class talk():
         except Exception as e:
             return e
 
-    def recordpoint(self, content, tmpcontnt_file):
+    def recordpoint(self, content, dirs):
         """ 处理文本-读取上次阅读记录 """
         try:
-            path = tmpcontnt_file + "recordpoint.txt"
+            path = dirs + "recordpoint.txt"
             f1 = open(path, mode="r", encoding="utf-8")
             tmprecordcontent = f1.read()
             f2 = open(tmprecordcontent, mode="r", encoding="utf-8")
@@ -67,23 +67,22 @@ class talk():
         # 打开文本
         content, content_len = self.opencontent(name)
 
-        # 判断历史记录的文件夹是否存在，不存在创建,定义变量为临时文件路径
+        # 判断历史记录的文件是否存在
         dirs = self.config["tmpcontnt_path"] + name[:-4:] + "\\"
         if not os.path.exists(dirs):
+            # 不存在历史记录文件夹和文件，创建。打印阅读进度为0%
             os.makedirs(dirs)
-        global tmpcontnt_file
-        tmpcontnt_file = self.config["tmpcontnt_path"] + name[:-4:] + "\\"
-
-        # 如果历史记录存在，则从历史记录开始
-        if self.recordpoint(content, tmpcontnt_file):
-            content, history_index = self.recordpoint(content, tmpcontnt_file)
-
-        # 打印阅读进度
-        print("{0:0.2f}%".format((history_index / content_len) * 100))
+            f = open(dirs+"recordpoint.txt", mode="w", encoding="utf-8")
+            f.close()
+            print("0%")
+        else:
+            # 存在历史记录，读取历史记录，打印阅读进度
+            content, history_index = self.recordpoint(content, dirs)
+            print("{0:0.2f}%".format((history_index / content_len) * 100))
 
         # 记录本次已读部分文件
-        tmprecordcontent = tmpcontnt_file + time.strftime("%Y%m%d%H%M%S") + ".txt"
-        recordpoint = open(tmpcontnt_file+"recordpoint.txt", mode="w", encoding="utf-8")
+        tmprecordcontent = dirs + time.strftime("%Y%m%d%H%M%S") + ".txt"
+        recordpoint = open(dirs+"recordpoint.txt", mode="w", encoding="utf-8")
         recordpoint.write(tmprecordcontent)
         recordpoint.close()
 
@@ -115,7 +114,8 @@ class talk():
 
 if __name__ == '__main__':
     T1 = talk()
-    T1.talkcontent(name="神壕从宕机开始.txt")
+    # T1.talkcontent(name="神壕从宕机开始.txt")
+    T1.talkcontent(name="朕.txt")
     # T1.talkcontent(name="吞噬星空之签到成神.txt")
     # T1.talkStop()
 
